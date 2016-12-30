@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>PlayerCollisions.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jpacman-framework</a> &gt; <a href="index.source.html" class="el_package">nl.tudelft.jpacman.level</a> &gt; <span class="el_source">PlayerCollisions.java</span></div><h1>PlayerCollisions.java</h1><pre class="source lang-java linenums">package nl.tudelft.jpacman.level;
+
+import nl.tudelft.jpacman.board.Unit;
+import nl.tudelft.jpacman.npc.ghost.Ghost;
+
+/**
+ * A simple implementation of a collision map for the JPacman player.
+ * &lt;p&gt;
+ * It uses a number of instanceof checks to implement the multiple dispatch for the 
+ * collisionmap. For more realistic collision maps, this approach will not scale,
+ * and the recommended approach is to use a {@link CollisionInteractionMap}.
+ * 
+ * @author Arie van Deursen, 2014
+ *
+ */
+
+<span class="fc" id="L17">public class PlayerCollisions implements CollisionMap {</span>
+
+	@Override
+	public void collide(Unit mover, Unit collidedOn) {
+		
+<span class="fc bfc" id="L22" title="All 2 branches covered.">		if (mover instanceof Player) {</span>
+<span class="fc" id="L23">			playerColliding((Player) mover, collidedOn);</span>
+		}
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">		else if (mover instanceof Ghost) {</span>
+<span class="fc" id="L26">			ghostColliding((Ghost) mover, collidedOn);</span>
+		}
+<span class="nc bnc" id="L28" title="All 2 branches missed.">		else if (mover instanceof Pellet) {</span>
+<span class="nc" id="L29">			pelletColliding((Pellet) mover, collidedOn);</span>
+		}
+<span class="fc" id="L31">	}</span>
+	
+	private void playerColliding(Player player, Unit collidedOn) {
+<span class="fc bfc" id="L34" title="All 2 branches covered.">		if (collidedOn instanceof Ghost) {</span>
+<span class="fc" id="L35">			playerVersusGhost(player, (Ghost) collidedOn);</span>
+		}
+		
+<span class="fc bfc" id="L38" title="All 2 branches covered.">		if (collidedOn instanceof Pellet) {</span>
+<span class="fc" id="L39">			playerVersusPellet(player, (Pellet) collidedOn);</span>
+		}		
+<span class="fc" id="L41">	}</span>
+	
+	private void ghostColliding(Ghost ghost, Unit collidedOn) {
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">		if (collidedOn instanceof Player) {</span>
+<span class="nc" id="L45">			playerVersusGhost((Player) collidedOn, ghost);</span>
+		}
+<span class="fc" id="L47">	}</span>
+	
+	private void pelletColliding(Pellet pellet, Unit collidedOn) {
+<span class="nc bnc" id="L50" title="All 2 branches missed.">		if (collidedOn instanceof Player) {</span>
+<span class="nc" id="L51">			playerVersusPellet((Player) collidedOn, pellet);</span>
+		}		
+<span class="nc" id="L53">	}</span>
+	
+	
+	/**
+	 * Actual case of player bumping into ghost or vice versa.
+     *
+     * @param player The player involved in the collision.
+     * @param ghost The ghost involved in the collision.
+	 */
+	public void playerVersusGhost(Player player, Ghost ghost) {
+<span class="fc" id="L63">		player.setAlive(false);</span>
+<span class="fc" id="L64">	}</span>
+	
+	/**
+	 * Actual case of player consuming a pellet.
+     *
+     * @param player The player involved in the collision.
+     * @param pellet The pellet involved in the collision.
+	 */
+	public void playerVersusPellet(Player player, Pellet pellet) {
+<span class="fc" id="L73">		pellet.leaveSquare();</span>
+<span class="fc" id="L74">		player.addPoints(pellet.getValue());		</span>
+<span class="fc" id="L75">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

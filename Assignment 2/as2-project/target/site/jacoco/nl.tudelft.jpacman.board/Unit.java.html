@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Unit.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jpacman-framework</a> &gt; <a href="index.source.html" class="el_package">nl.tudelft.jpacman.board</a> &gt; <span class="el_source">Unit.java</span></div><h1>Unit.java</h1><pre class="source lang-java linenums">package nl.tudelft.jpacman.board;
+
+import nl.tudelft.jpacman.sprite.Sprite;
+
+/**
+ * A unit that can be placed on a {@link Square}.
+ * 
+ * @author Jeroen Roosen 
+ */
+<span class="pc bpc" id="L10" title="1 of 2 branches missed.">public abstract class Unit {</span>
+
+	/**
+	 * The square this unit is currently occupying.
+	 */
+	private Square square;
+	
+	/**
+	 * The direction this unit is facing.
+	 */
+	private Direction direction;
+
+	/**
+	 * Creates a unit that is facing east.
+	 */
+<span class="fc" id="L25">	protected Unit() {</span>
+<span class="fc" id="L26">		this.direction = Direction.EAST;</span>
+<span class="fc" id="L27">	}</span>
+	
+	/**
+	 * Sets this unit to face the new direction.
+	 * @param newDirection The new direction this unit is facing.
+	 */
+	public void setDirection(Direction newDirection) {
+<span class="fc" id="L34">		this.direction = newDirection;</span>
+<span class="fc" id="L35">	}</span>
+	
+	/**
+	 * Returns the current direction this unit is facing.
+	 * @return The current direction this unit is facing.
+	 */
+	public Direction getDirection() {
+<span class="fc" id="L42">		return this.direction;</span>
+	}
+	
+	/**
+	 * Returns the square this unit is currently occupying.
+	 * 
+	 * @return The square this unit is currently occupying, or &lt;code&gt;null&lt;/code&gt;
+	 *         if this unit is not on a square.
+	 */
+	public Square getSquare() {
+<span class="pc bpc" id="L52" title="2 of 4 branches missed.">		assert invariant();</span>
+<span class="fc" id="L53">		return square;</span>
+	}
+
+	/**
+	 * Occupies the target square iff this unit is allowed to as decided by
+	 * {@link Square#isAccessibleTo(Unit)}.
+	 * 
+	 * @param target
+	 *            The square to occupy.
+	 */
+	public void occupy(Square target) {
+<span class="pc bpc" id="L64" title="2 of 4 branches missed.">		assert target != null;</span>
+		
+<span class="fc bfc" id="L66" title="All 2 branches covered.">		if (square != null) {</span>
+<span class="fc" id="L67">			square.remove(this);</span>
+		}
+<span class="fc" id="L69">		square = target;</span>
+<span class="fc" id="L70">		target.put(this);</span>
+<span class="pc bpc" id="L71" title="2 of 4 branches missed.">		assert invariant();</span>
+<span class="fc" id="L72">	}</span>
+	
+	/**
+	 * Leaves the currently occupying square, thus removing this unit from the board.
+	 */
+	public void leaveSquare() {
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">		if (square != null) {</span>
+<span class="fc" id="L79">			square.remove(this);</span>
+<span class="fc" id="L80">			square = null;</span>
+		}
+<span class="pc bpc" id="L82" title="2 of 4 branches missed.">		assert invariant();</span>
+<span class="fc" id="L83">	}</span>
+
+	/**
+	 * Tests whether the square this unit is occupying has this unit listed as
+	 * one of its occupiers.
+	 * 
+	 * @return &lt;code&gt;true&lt;/code&gt; if the square this unit is occupying has this
+	 *         unit listed as one of its occupiers, or if this unit is currently
+	 *         not occupying any square.
+	 */
+	protected boolean invariant() {
+<span class="pc bpc" id="L94" title="1 of 4 branches missed.">		return square == null || square.getOccupants().contains(this);</span>
+	}
+
+	/**
+	 * Returns the sprite of this unit.
+	 * 
+	 * @return The sprite of this unit.
+	 */
+	public abstract Sprite getSprite();
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

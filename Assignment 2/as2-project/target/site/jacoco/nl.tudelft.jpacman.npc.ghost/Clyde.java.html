@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Clyde.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jpacman-framework</a> &gt; <a href="index.source.html" class="el_package">nl.tudelft.jpacman.npc.ghost</a> &gt; <span class="el_source">Clyde.java</span></div><h1>Clyde.java</h1><pre class="source lang-java linenums">package nl.tudelft.jpacman.npc.ghost;
+
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+
+import nl.tudelft.jpacman.board.Direction;
+import nl.tudelft.jpacman.board.Square;
+import nl.tudelft.jpacman.level.Player;
+import nl.tudelft.jpacman.sprite.Sprite;
+
+/**
+ * &lt;p&gt;
+ * An implementation of the classic Pac-Man ghost Pokey.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * Nickname: Clyde. Pokey needs a new nickname because out of all the ghosts,
+ * Pokey is the least likely to &quot;C'lyde&quot; with Pac-Man. Pokey is always the last
+ * ghost out of the regenerator, and the loner of the gang, usually off doing
+ * his own thing when not patrolling the bottom-left corner of the maze. His
+ * behavior is very random, so while he's not likely to be following you in hot
+ * pursuit with the other ghosts, he is a little less predictable, and still a
+ * danger. In Japan, his name is Otoboke/Guzuta.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * &lt;b&gt;AI:&lt;/b&gt; Pokey has two basic AIs, one for when he's far from Pac-Man, and
+ * one for when he is near to Pac-Man. When the ghosts are not patrolling their
+ * home corners, and Pokey is far away from Pac-Man (beyond eight grid spaces),
+ * Pokey behaves very much like Blinky, trying to move to Pac-Man's exact
+ * location. However, when Pokey gets within eight grid spaces of Pac-Man, he
+ * automatically changes his behavior and goes to patrol his home corner in the
+ * bottom-left section of the maze.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * Source: http://strategywiki.org/wiki/Pac-Man/Getting_Started
+ * &lt;/p&gt;
+ * 
+ * @author Jeroen Roosen 
+ * 
+ */
+public class Clyde extends Ghost {
+
+	/**
+	 * The amount of cells Clyde wants to stay away from Pac Man.
+	 */
+	private static final int SHYNESS = 8;
+
+	/**
+	 * The variation in intervals, this makes the ghosts look more dynamic and
+	 * less predictable.
+	 */
+	private static final int INTERVAL_VARIATION = 50;
+
+	/**
+	 * The base movement interval.
+	 */
+	private static final int MOVE_INTERVAL = 250;
+
+	/**
+	 * A map of opposite directions.
+	 */
+<span class="fc" id="L62">	private static final Map&lt;Direction, Direction&gt; OPPOSITES = new EnumMap&lt;&gt;(</span>
+			Direction.class);
+	static {
+<span class="fc" id="L65">		OPPOSITES.put(Direction.NORTH, Direction.SOUTH);</span>
+<span class="fc" id="L66">		OPPOSITES.put(Direction.SOUTH, Direction.NORTH);</span>
+<span class="fc" id="L67">		OPPOSITES.put(Direction.WEST, Direction.EAST);</span>
+<span class="fc" id="L68">		OPPOSITES.put(Direction.EAST, Direction.WEST);</span>
+<span class="fc" id="L69">	}</span>
+
+	/**
+	 * Creates a new &quot;Clyde&quot;, a.k.a. &quot;Pokey&quot;.
+	 * 
+	 * @param spriteMap
+	 *            The sprites for this ghost.
+	 */
+	public Clyde(Map&lt;Direction, Sprite&gt; spriteMap) {
+<span class="fc" id="L78">		super(spriteMap, MOVE_INTERVAL, INTERVAL_VARIATION);</span>
+<span class="fc" id="L79">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * &lt;p&gt;
+	 * Pokey has two basic AIs, one for when he's far from Pac-Man, and one for
+	 * when he is near to Pac-Man. When the ghosts are not patrolling their home
+	 * corners, and Pokey is far away from Pac-Man (beyond eight grid spaces),
+	 * Pokey behaves very much like Blinky, trying to move to Pac-Man's exact
+	 * location. However, when Pokey gets within eight grid spaces of Pac-Man,
+	 * he automatically changes his behavior and goes to patrol his home corner
+	 * in the bottom-left section of the maze.
+	 * &lt;/p&gt;
+	 * &lt;p&gt;
+	 * &lt;b&gt;Implementation:&lt;/b&gt; Lacking a patrol function so far, Clyde will just
+	 * move in the opposite direction when he gets within 8 cells of Pac-Man.
+	 * &lt;/p&gt;
+	 */
+	@Override
+	public Direction nextMove() {
+<span class="fc" id="L100">		Square target = Navigation.findNearest(Player.class, getSquare())</span>
+<span class="fc" id="L101">				.getSquare();</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">		if (target == null) {</span>
+<span class="nc" id="L103">			return randomMove();</span>
+		}
+
+<span class="fc" id="L106">		List&lt;Direction&gt; path = Navigation.shortestPath(getSquare(), target,</span>
+				this);
+<span class="pc bpc" id="L108" title="2 of 4 branches missed.">		if (path != null &amp;&amp; !path.isEmpty()) {</span>
+<span class="fc" id="L109">			Direction d = path.get(0);</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">			if (path.size() &lt;= SHYNESS) {</span>
+<span class="fc" id="L111">				return OPPOSITES.get(d);</span>
+			}
+<span class="fc" id="L113">			return d;</span>
+		}
+<span class="nc" id="L115">		return randomMove();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

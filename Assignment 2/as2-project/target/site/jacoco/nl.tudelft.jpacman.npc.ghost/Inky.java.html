@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Inky.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jpacman-framework</a> &gt; <a href="index.source.html" class="el_package">nl.tudelft.jpacman.npc.ghost</a> &gt; <span class="el_source">Inky.java</span></div><h1>Inky.java</h1><pre class="source lang-java linenums">package nl.tudelft.jpacman.npc.ghost;
+
+import java.util.List;
+import java.util.Map;
+
+import nl.tudelft.jpacman.board.Direction;
+import nl.tudelft.jpacman.board.Square;
+import nl.tudelft.jpacman.board.Unit;
+import nl.tudelft.jpacman.level.Player;
+import nl.tudelft.jpacman.sprite.Sprite;
+
+/**
+ * &lt;p&gt;
+ * An implementation of the classic Pac-Man ghost Bashful.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * Nickname: Inky. Bashful has truly earned his name. In a game of chicken
+ * between Pac-Man and Bashful, Bashful might just run away. This isn't always
+ * the case, but if Blinky is right behind you, it's a safe bet. He can't be
+ * scared off while he patrols the southeast portion of the maze. In Japan, his
+ * name is Kimagure/Aosuke.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * &lt;b&gt;AI:&lt;/b&gt; Bashful has the most complicated AI of all. When the ghosts are
+ * not patrolling their home corners, Bashful considers two things: Shadow's
+ * location, and the location two grid spaces ahead of Pac-Man. Bashful draws a
+ * line from Shadow to the spot that is two squares in front of Pac-Man and
+ * extends that line twice as far. Therefore, if Bashful is alongside Shadow
+ * when they are behind Pac-Man, Bashful will usually follow Shadow the whole
+ * time. But if Bashful is in front of Pac-Man when Shadow is far behind him,
+ * Bashful tends to want to move away from Pac-Man (in reality, to a point very
+ * far ahead of Pac-Man). Bashful is affected by a similar targeting bug that
+ * affects Speedy. When Pac-Man is moving or facing up, the spot Bashful uses to
+ * draw the line is two squares above and left of Pac-Man.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * Source: http://strategywiki.org/wiki/Pac-Man/Getting_Started
+ * &lt;/p&gt;
+ * 
+ * @author Jeroen Roosen 
+ * 
+ */
+public class Inky extends Ghost {
+
+	private static final int SQUARES_AHEAD = 2;
+
+	/**
+	 * The variation in intervals, this makes the ghosts look more dynamic and
+	 * less predictable.
+	 */
+	private static final int INTERVAL_VARIATION = 50;
+
+	/**
+	 * The base movement interval.
+	 */
+	private static final int MOVE_INTERVAL = 250;
+
+	/**
+	 * Creates a new &quot;Inky&quot;, a.k.a. Bashful.
+	 * 
+	 * @param spriteMap
+	 *            The sprites for this ghost.
+	 */
+	public Inky(Map&lt;Direction, Sprite&gt; spriteMap) {
+<span class="fc" id="L65">		super(spriteMap, MOVE_INTERVAL, INTERVAL_VARIATION);</span>
+<span class="fc" id="L66">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * &lt;p&gt;
+	 * Bashful has the most complicated AI of all. When the ghosts are not
+	 * patrolling their home corners, Bashful considers two things: Shadow's
+	 * location, and the location two grid spaces ahead of Pac-Man. Bashful
+	 * draws a line from Shadow to the spot that is two squares in front of
+	 * Pac-Man and extends that line twice as far. Therefore, if Bashful is
+	 * alongside Shadow when they are behind Pac-Man, Bashful will usually
+	 * follow Shadow the whole time. But if Bashful is in front of Pac-Man when
+	 * Shadow is far behind him, Bashful tends to want to move away from Pac-Man
+	 * (in reality, to a point very far ahead of Pac-Man). Bashful is affected
+	 * by a similar targeting bug that affects Speedy. When Pac-Man is moving or
+	 * facing up, the spot Bashful uses to draw the line is two squares above
+	 * and left of Pac-Man.
+	 * &lt;/p&gt;
+	 * 
+	 * &lt;p&gt;
+	 * &lt;b&gt;Implementation:&lt;/b&gt; by lack of a coordinate system there is a
+	 * workaround: first determine the square of Blinky (A) and the square 2
+	 * squares away from Pac-Man (B). Then determine the shortest path from A to
+	 * B regardless of terrain and walk that same path from B. This is the
+	 * destination.
+	 * &lt;/p&gt;
+	 */
+	// CHECKSTYLE:OFF To keep this more readable.
+	@Override
+	public Direction nextMove() {
+<span class="fc" id="L97">		Unit blinky = Navigation.findNearest(Blinky.class, getSquare());</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">		if (blinky == null) {</span>
+<span class="nc" id="L99">			return randomMove();</span>
+		}
+
+<span class="fc" id="L102">		Unit player = Navigation.findNearest(Player.class, getSquare());</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">		if (player == null) {</span>
+<span class="nc" id="L104">			return randomMove();</span>
+		}
+
+<span class="fc" id="L107">		Direction targetDirection = player.getDirection();</span>
+<span class="fc" id="L108">		Square playerDestination = player.getSquare();</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">		for (int i = 0; i &lt; SQUARES_AHEAD; i++) {</span>
+<span class="fc" id="L110">			playerDestination = playerDestination.getSquareAt(targetDirection);</span>
+		}
+
+<span class="fc" id="L113">		Square destination = playerDestination;</span>
+<span class="fc" id="L114">		List&lt;Direction&gt; firstHalf = Navigation.shortestPath(blinky.getSquare(),</span>
+				playerDestination, null);
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">		if (firstHalf == null) {</span>
+<span class="nc" id="L117">			return randomMove();</span>
+		}
+
+<span class="fc bfc" id="L120" title="All 2 branches covered.">		for (Direction d : firstHalf) {</span>
+<span class="fc" id="L121">			destination = playerDestination.getSquareAt(d);</span>
+<span class="fc" id="L122">		}</span>
+
+<span class="fc" id="L124">		List&lt;Direction&gt; path = Navigation.shortestPath(getSquare(),</span>
+				destination, this);
+<span class="pc bpc" id="L126" title="1 of 4 branches missed.">		if (path != null &amp;&amp; !path.isEmpty()) {</span>
+<span class="fc" id="L127">			return path.get(0);</span>
+		}
+<span class="fc" id="L129">		return randomMove();</span>
+	}
+	// CHECKSTYLE:ON
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>
